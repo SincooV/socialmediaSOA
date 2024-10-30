@@ -15,8 +15,8 @@ class UserController extends Controller
     // Retorna todos os usuários
     public function index()
     {
-        $Users = User::all();
-        return response()->json($Users);
+        $users = User::all();
+        return response()->json($users);
     }
 
     // Cria um novo usuário
@@ -37,7 +37,7 @@ class UserController extends Controller
 
         // Criação do usuário
         try {
-            $User = User::create([
+            $user = User::create([
                 'id' => (string) Str::uuid(),
                 'name' => $request->name,
                 'username' => $request->username,
@@ -46,7 +46,7 @@ class UserController extends Controller
             ]);
 
             // Retorna a resposta com status 201
-            return response()->json($User, 201);
+            return response()->json($user, 201);
 
         } catch (\Exception $e) {
             // Retorna uma resposta de erro com status 500
@@ -64,20 +64,17 @@ class UserController extends Controller
 
         if (!Auth::attempt($data)) {
             return response()->json(['email' => 'Credenciais inválidas.'], 401);
-
         }
-       
 
-
-        $student = Auth::user();
+        $user = Auth::user();
 
         // Cria o token de acesso pessoal
-        $token = $student->createToken('Personal Access Token', ['*'], now()->addDays(30))->plainTextToken;
+        $token = $user->createToken('Personal Access Token', ['*'], now()->addDays(30))->plainTextToken;
 
         return response()->json([
             'message' => 'Login bem-sucedido.',
             'token' => $token,
-            'User' => $student,
+            'user' => $user,
         ]);
     }
 
@@ -100,10 +97,11 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function update(Request $request, User $User)
+    // Atualiza os dados do usuário
+    public function update(Request $request, User $user)
     {
         // Verifica se o usuário logado é o mesmo que está tentando atualizar
-        if (Auth::id() !== $User->id) {
+        if (Auth::id() !== $user->id) {
             return response()->json(['message' => 'Acesso não autorizado'], 403);
         }
 
@@ -115,28 +113,26 @@ class UserController extends Controller
         ]);
 
         // Atualiza os dados do usuário
-        $User->update([
+        $user->update([
             'username' => $validatedData['username'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']) // Atualiza a senha de forma segura
         ]);
 
-        return response()->json($User, 200);
+        return response()->json($user, 200);
     }
 
-    public function destroy(User $User)
+    // Deleta o usuário
+    public function destroy(User $user)
     {
         // Verifica se o usuário logado é o mesmo que está tentando deletar
-        if (Auth::id() !== $User->id) {
+        if (Auth::id() !== $user->id) {
             return response()->json(['message' => 'Acesso não autorizado'], 403);
         }
 
         // Deleta o usuário
-        $User->delete();
+        $user->delete();
 
         return response()->json(null, 204);
     }
-
-
-    
 }

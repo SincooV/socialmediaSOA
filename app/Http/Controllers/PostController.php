@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Auth;
 class PostController extends Controller
 {
     // Retorna todos os posts
-    public function index()
-    {
+    public function index(){
         $posts = Post::all();
         return response()->json($posts);
     }
